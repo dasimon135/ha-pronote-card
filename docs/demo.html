@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pronote Card demo</title>
+<!--
+  The real card (../dist/pronote-card.js) on made-up data, one card per tab.
+  Open it in a browser, or render docs/screenshot.png from it:
+    chrome --headless --hide-scrollbars --window-size=1800,810 --screenshot=docs/screenshot.png docs/demo.html
+-->
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary-color: #03a9f4; --primary-text-color: #e1e1e1; --secondary-text-color: #9b9b9b;
+    --divider-color: rgba(225,225,225,.12); --secondary-background-color: #282828;
+    --card-background-color: #1c1c1c; --ha-card-background: #1c1c1c;
+    --warning-color: #ffa600; --success-color: #43a047;
+  }
+  body { margin: 0; background: #111111; color: var(--primary-text-color); font-family: Roboto, system-ui, sans-serif; }
+  .grid { display: grid; grid-template-columns: repeat(4, 420px); gap: 16px; padding: 24px; align-items: start; }
+  ha-card { display: block; background: var(--ha-card-background); border-radius: 12px; border: 1px solid var(--divider-color); }
+</style>
+</head>
+<body>
+<div class="grid" id="grid"></div>
+<script>customElements.define("ha-card", class extends HTMLElement {});</script>
+<script src="../dist/pronote-card.js"></script>
+<script>
+  const pad = (n) => String(n).padStart(2, "0");
+  const day = (offset, time) => {
+    const d = new Date(); d.setDate(d.getDate() + offset);
+    const iso = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+    return time ? `${iso}T${time}:00` : iso;
+  };
+  const L = (o, s, e, lesson, color, extra = {}) => ({ start_at: day(o, s), end_at: day(o, e), lesson, background_color: color,
+    classroom: extra.classroom || "Salle 104", teacher_name: extra.teacher || "M. Martin", canceled: !!extra.status, status: extra.status || null, group_name: null });
+  const C = { ESP: "#E73A1F", MAT: "#F49737", FRA: "#6ACAF2", ANG: "#ED679B", HG: "#4576BA", PC: "#195A46", SVT: "#5C782A", TEC: "#9D526A", EPS: "#3AF30C", MUS: "#AC75AE" };
+  const sensors = {
+    grades: ["32", { grades: [
+      { date: day(-3), subject: "ESPAGNOL LV2 > Expression écrite", comment: "La ville", grade: "17", out_of: "20", class_average: "13,2" },
+      { date: day(-5), subject: "MATHEMATIQUES", comment: "Fractions", grade: "8,5", out_of: "10", class_average: "6,9" },
+      { date: day(-5), subject: "PHYSIQUE-CHIMIE", comment: "Circuits électriques", grade: "11", out_of: "15", class_average: "11,8" },
+      { date: day(-8), subject: "FRANCAIS", comment: "Rédaction", grade: "15", out_of: "20", class_average: "12,4" },
+      { date: day(-10), subject: "SCIENCES VIE & TERRE", comment: "Volcans", grade: "9", out_of: "10", class_average: "7,6" },
+      { date: day(-12), subject: "ANGLAIS LV1 > Expression orale", comment: "", grade: "14", out_of: "20", class_average: "12" },
+    ] }],
+    averages: ["8", { averages: [
+      ["FRANCAIS", "15,5", "13,1", C.FRA], ["MATHEMATIQUES", "16,2", "12,4", C.MAT], ["ANGLAIS LV1 > Expression orale", "14", "12,3", C.ANG],
+      ["ESPAGNOL LV2 > Expression écrite", "16,4", "13,9", C.ESP], ["HISTOIRE-GEOGRAPHIE", "13,8", "12,2", C.HG], ["PHYSIQUE-CHIMIE", "12,9", "12,5", C.PC],
+      ["SCIENCES VIE & TERRE", "17,1", "14,6", C.SVT], ["TECHNOLOGIE", "11,5", "12,8", C.TEC],
+    ].map(([subject, average, cls, background_color]) => ({ subject, average, class: cls, out_of: "20", background_color })) }],
+    overall_average: ["14.7", {}],
+    homework: ["5", { homework: [
+      { date: day(1), subject: "ESPAGNOL LV2", description: "Apprendre le vocabulaire de la leçon 4.", done: false, background_color: C.ESP, files: [] },
+      { date: day(1), subject: "MATHEMATIQUES", description: "Exercices 12 et 13 page 58.", done: true, background_color: C.MAT, files: [] },
+      { date: day(2), subject: "HISTOIRE-GEOGRAPHIE", description: "Réviser le chapitre 2 pour l’interrogation.", done: false, background_color: C.HG, files: [] },
+      { date: day(3), subject: "TECHNOLOGIE", description: "Compléter la fiche d’activité.", done: false, background_color: C.TEC, files: [{ name: "fiche.pdf" }] },
+      { date: day(6), subject: "FRANCAIS", description: "Lire les chapitres 3 et 4.", done: false, background_color: C.FRA, files: [] },
+    ] }],
+    lessons_today: ["5", { lessons: [
+      L(0, "08:00", "09:00", "MATHEMATIQUES", C.MAT, { classroom: "Salle 205" }),
+      L(0, "09:00", "10:00", "TECHNOLOGIE", C.TEC, { classroom: "Salle 103", status: "Prof. absent" }),
+      L(0, "10:10", "11:10", "EDUCATION MUSICALE", C.MUS, { classroom: "Salle 201", teacher: "Mme Petit" }),
+      L(0, "13:30", "15:20", "ED.PHYSIQUE & SPORT.", C.EPS, { classroom: "Gymnase", teacher: "M. Bernard" }),
+      L(0, "15:35", "16:35", "SCIENCES VIE & TERRE", C.SVT, { classroom: "Salle 107", teacher: "Mme Durand" }),
+    ], canceled_lessons_counter: 1, day_start_at: day(0, "08:00"), day_end_at: day(0, "16:35"),
+      lunch_break_start_at: day(0, "12:00"), lunch_break_end_at: day(0, "13:30") }],
+    lessons_next_day: ["3", { lessons: [
+      L(1, "09:00", "10:00", "ESPAGNOL LV2", C.ESP, { classroom: "Salle 204" }),
+      L(1, "10:10", "11:10", "FRANCAIS", C.FRA, { classroom: "Salle 108" }),
+    ], canceled_lessons_counter: 0 }],
+    absences: ["2", { absences: [
+      { from: day(-6, "10:10"), to: day(-6, "11:10"), justified: false, hours: "1h00", reason: "" },
+      { from: day(-20, "08:00"), to: day(-20, "16:35"), justified: true, hours: "7h00", reason: "MALADIE" },
+    ] }],
+    delays: ["1", { delays: [] }],
+    punishments: ["0", { punishments: [] }],
+    information_and_surveys: ["3", { unread_count: 1, information_and_surveys: [
+      { title: "Réunion parents-professeurs", author: "Mme Leroy", category: "Vie scolaire", read: false, creation_date: day(-1, "10:00") },
+      { title: "Sortie au musée", author: "M. Martin", category: "Divers", read: true, creation_date: day(-4, "10:00") },
+      { title: "Menu de la semaine", author: "Intendance", category: "Divers", read: true, creation_date: day(-7, "10:00") },
+    ] }],
+    class: ["4e2", { class_name: "4e2", establishment: "Collège Exemple" }],
+    current_period: ["Trimestre 1", {}],
+  };
+  const hass = { language: "fr", entities: {}, states: {}, devices: { lea: { name: "Pronote Léa" } } };
+  for (const [key, [state, attrs]] of Object.entries(sensors)) {
+    const id = `sensor.pronote_lea_${key}`;
+    hass.entities[id] = { entity_id: id, platform: "pronote", translation_key: key, device_id: "lea" };
+    hass.states[id] = { entity_id: id, state, last_updated: "1",
+      attributes: { nickname: "Léa", updated_at: new Date().toISOString(), ...attrs } };
+  }
+  for (const tab of ["grades", "homework", "lessons", "life"]) {
+    const card = document.createElement("pronote-card");
+    card.setConfig({ entity: "sensor.pronote_lea_grades", tab });
+    card.hass = hass;
+    document.getElementById("grid").appendChild(card);
+  }
+</script>
+</body>
+</html>

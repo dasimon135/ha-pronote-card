@@ -7,6 +7,11 @@ absences and the school's information, read from the sensors of the
 > **Unofficial.** This card is not affiliated with Index Éducation (the publisher of PRONOTE)
 > nor with the Pronote integration. It only reads the sensors that integration creates.
 
+![The four tabs of the card, on made-up data](docs/screenshot.png)
+
+The picture is the card itself rendered on made-up data: open [`docs/demo.html`](docs/demo.html)
+in a browser to try it.
+
 ## What you get
 
 - **Header**: the child's nickname, class and school, and a pill when information is unread.
