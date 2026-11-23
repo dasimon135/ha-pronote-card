@@ -1,0 +1,6 @@
+{
+  "name": "Pronote Card",
+  "render_readme": true,
+  "filename": "pronote-card.js",
+  "homeassistant": "2024.11.0"
+}
